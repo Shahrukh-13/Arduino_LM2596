@@ -21,8 +21,25 @@
 #define MIN_PWM_ADDRESS           13
 #define MAX_PWM_ADDRESS           14
 
+#define VREAD_ANALOG_CHANNEL      A0 
+
+#define VREAD_GAIN_B0_ADDRESS      15
+#define VREAD_GAIN_B1_ADDRESS      16
+#define VREAD_GAIN_B2_ADDRESS      17
+#define VREAD_GAIN_B3_ADDRESS      18
+
+#define VREAD_OFFSET_B0_ADDRESS    19
+#define VREAD_OFFSET_B1_ADDRESS    20
+#define VREAD_OFFSET_B2_ADDRESS    21
+#define VREAD_OFFSET_B3_ADDRESS    22
+
+#define VREAD_MAX                 20
+#define ADC_MAX_VAL               1023
+
 float vset;
 String VSET;
+
+float vread;
 
 String VSET_GAIN;
 float vset_gain_float;
@@ -55,6 +72,14 @@ unsigned int min_pwm_int;
 
 String MAX_PWM;
 unsigned int max_pwm_int;
+
+String VREAD_GAIN;
+float vread_gain_float = 1;
+int32_t vread_gain_fixedpoint;
+
+String VREAD_OFFSET;
+float vread_offset_float = 0.1;
+int32_t vread_offset_fixedpoint;
 
 void setup()
 {
@@ -95,6 +120,7 @@ void loop()
   {
     analogWrite(6,pwm_int);  
   }
+  Readbacks();
   print_values();
 }
 
@@ -270,6 +296,34 @@ void Do_Serial()
   }
 }
 
+void Readbacks()
+{
+  float adc_resolution = (float)VREAD_MAX/ADC_MAX_VAL;
+  //Serial.print(adc_resolution);
+  uint16_t raw_val= ADC_AVG(VREAD_ANALOG_CHANNEL);
+  float scaled_val = (float)raw_val * adc_resolution;
+  vread = scaled_val * vread_gain_float + vread_offset_float;
+  //Serial.print(raw_val);
+  //Serial.print(" ");
+  //Serial.print(vread);
+  //Serial.println();
+}
+
+uint16_t ADC_AVG(uint8_t channel)
+{
+  uint8_t i;
+  uint8_t num_of_samples = 40;
+  uint16_t ADC_Samples[num_of_samples];
+  uint16_t ADC_Average = 0;
+  for(i=0 ; i<num_of_samples ; i++)
+  {
+    ADC_Samples[i] = analogRead(channel);
+    ADC_Average += ADC_Samples[i];
+  }
+  
+  return(ADC_Average = ADC_Average/num_of_samples);  
+}
+
 void print_values()
 {
   Serial.print("Mode: ");
@@ -290,5 +344,7 @@ void print_values()
   Serial.print(max_pwm_int);
   Serial.print("  pwm: ");
   Serial.print(pwm_int);
+  Serial.print("  Vread: ");
+  Serial.print(vread);
   Serial.println();
 }
