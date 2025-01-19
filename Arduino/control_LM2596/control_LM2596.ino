@@ -36,8 +36,8 @@
 #define VREAD_MAX                 20
 #define ADC_MAX_VAL               1023
 
-float vset;
 String VSET;
+float vset;
 
 float vread;
 
@@ -50,35 +50,35 @@ float vset_offset_float;
 int32_t vset_offset_fixedpoint;
 
 String MODE;
-unsigned char mode;
+uint8_t mode;
 
 String input = "";
 String command = "";
 
 String PWM;
 float pwm_float;
-unsigned int pwm_int;
+uint8_t pwm_int;
 
 String VSET_MAX;
 float vset_max;
-unsigned int vset_max_fixedpoint;
+uint16_t vset_max_fixedpoint;
 
 String VSET_MIN;
 float vset_min;
-unsigned int vset_min_fixedpoint;
+uint16_t vset_min_fixedpoint;
 
 String MIN_PWM;
-unsigned int min_pwm_int;
+uint8_t min_pwm_int;
 
 String MAX_PWM;
-unsigned int max_pwm_int;
+uint8_t max_pwm_int;
 
 String VREAD_GAIN;
-float vread_gain_float = 1;
+float vread_gain_float;
 int32_t vread_gain_fixedpoint;
 
 String VREAD_OFFSET;
-float vread_offset_float = 0.1;
+float vread_offset_float;
 int32_t vread_offset_fixedpoint;
 
 void setup()
@@ -86,6 +86,7 @@ void setup()
   Serial.begin(9600);
   pinMode(6,OUTPUT);
   vset=0;
+  pwm_int = 255;
   EEPROM_Reads();
 }
 
@@ -104,7 +105,7 @@ void loop()
     }
     
     pwm_float=float_map(vset,vset_min,vset_max,max_pwm_int,min_pwm_int); 
-    pwm_int = (unsigned int)pwm_float*vset_gain_float + vset_offset_float;
+    pwm_int = (uint8_t)pwm_float*vset_gain_float + vset_offset_float;
     
     if(pwm_int>255)
     {
@@ -135,10 +136,10 @@ void EEPROM_Reads()
   {
     vset_gain_float = 1;
     vset_gain_fixedpoint = vset_gain_float * 100;
-    EEPROM.write(VSET_GAIN_B0_ADDRESS, (unsigned char)(vset_gain_fixedpoint & 0xFF));
-    EEPROM.write(VSET_GAIN_B1_ADDRESS, (unsigned char)((vset_gain_fixedpoint >> 8) & 0xFF));
-    EEPROM.write(VSET_GAIN_B2_ADDRESS, (unsigned char)((vset_gain_fixedpoint >> 16) & 0xFF));
-    EEPROM.write(VSET_GAIN_B3_ADDRESS, (unsigned char)((vset_gain_fixedpoint >> 24) & 0xFF));
+    EEPROM.write(VSET_GAIN_B0_ADDRESS, (uint8_t)(vset_gain_fixedpoint & 0xFF));
+    EEPROM.write(VSET_GAIN_B1_ADDRESS, (uint8_t)((vset_gain_fixedpoint >> 8) & 0xFF));
+    EEPROM.write(VSET_GAIN_B2_ADDRESS, (uint8_t)((vset_gain_fixedpoint >> 16) & 0xFF));
+    EEPROM.write(VSET_GAIN_B3_ADDRESS, (uint8_t)((vset_gain_fixedpoint >> 24) & 0xFF));
   }
   else 
   {
@@ -150,10 +151,10 @@ void EEPROM_Reads()
   {
     vset_offset_float = 0;
     vset_offset_fixedpoint = vset_offset_float * 100;
-    EEPROM.write(VSET_OFFSET_B0_ADDRESS, (unsigned char)(vset_offset_fixedpoint & 0xFF));
-    EEPROM.write(VSET_OFFSET_B1_ADDRESS, (unsigned char)((vset_offset_fixedpoint >> 8) & 0xFF));
-    EEPROM.write(VSET_OFFSET_B2_ADDRESS, (unsigned char)((vset_offset_fixedpoint >> 16) & 0xFF));
-    EEPROM.write(VSET_OFFSET_B3_ADDRESS, (unsigned char)((vset_offset_fixedpoint >> 24) & 0xFF));
+    EEPROM.write(VSET_OFFSET_B0_ADDRESS, (uint8_t)(vset_offset_fixedpoint & 0xFF));
+    EEPROM.write(VSET_OFFSET_B1_ADDRESS, (uint8_t)((vset_offset_fixedpoint >> 8) & 0xFF));
+    EEPROM.write(VSET_OFFSET_B2_ADDRESS, (uint8_t)((vset_offset_fixedpoint >> 16) & 0xFF));
+    EEPROM.write(VSET_OFFSET_B3_ADDRESS, (uint8_t)((vset_offset_fixedpoint >> 24) & 0xFF));
   }
   else 
   {
@@ -175,12 +176,12 @@ void EEPROM_Reads()
   {
     vset_max = 5;
     vset_max_fixedpoint = vset_max * 100;
-    EEPROM.write(VSET_MAX_LSB_ADDRESS, (unsigned char)(vset_max_fixedpoint & 0xFF));
-    EEPROM.write(VSET_MAX_MSB_ADDRESS, (unsigned char)((vset_max_fixedpoint >> 8) & 0xFF));
+    EEPROM.write(VSET_MAX_LSB_ADDRESS, (uint8_t)(vset_max_fixedpoint & 0xFF));
+    EEPROM.write(VSET_MAX_MSB_ADDRESS, (uint8_t)((vset_max_fixedpoint >> 8) & 0xFF));
   }
   else 
   {
-    unsigned int x= (unsigned int)((EEPROM.read(VSET_MAX_MSB_ADDRESS) << 8) | EEPROM.read(VSET_MAX_LSB_ADDRESS));
+    uint16_t x= (uint16_t)((EEPROM.read(VSET_MAX_MSB_ADDRESS) << 8) | EEPROM.read(VSET_MAX_LSB_ADDRESS));
     vset_max =(float)x/100;
   }
 
@@ -188,12 +189,12 @@ void EEPROM_Reads()
   {
     vset_min = 0;
     vset_min_fixedpoint = vset_min * 100;
-    EEPROM.write(VSET_MIN_LSB_ADDRESS, (unsigned char)(vset_min_fixedpoint & 0xFF));
-    EEPROM.write(VSET_MIN_MSB_ADDRESS, (unsigned char)((vset_min_fixedpoint >> 8) & 0xFF));
+    EEPROM.write(VSET_MIN_LSB_ADDRESS, (uint8_t)(vset_min_fixedpoint & 0xFF));
+    EEPROM.write(VSET_MIN_MSB_ADDRESS, (uint8_t)((vset_min_fixedpoint >> 8) & 0xFF));
   }
   else 
   {
-    unsigned int x= (unsigned int)((EEPROM.read(VSET_MIN_MSB_ADDRESS) << 8) | EEPROM.read(VSET_MIN_LSB_ADDRESS));
+    uint16_t x= (uint16_t)((EEPROM.read(VSET_MIN_MSB_ADDRESS) << 8) | EEPROM.read(VSET_MIN_LSB_ADDRESS));
     vset_min =(float)x/100;
   }
 
@@ -209,6 +210,37 @@ void EEPROM_Reads()
     min_pwm_int = EEPROM.read(MIN_PWM_ADDRESS);
     max_pwm_int = EEPROM.read(MAX_PWM_ADDRESS);
   }
+  
+
+  if(EEPROM.read(VREAD_GAIN_B0_ADDRESS) == 255 && EEPROM.read(VREAD_GAIN_B1_ADDRESS) == 255 && EEPROM.read(VREAD_GAIN_B2_ADDRESS) == 255 && EEPROM.read(VREAD_GAIN_B3_ADDRESS) == 255)
+  {
+    vread_gain_float = 1;
+    vread_gain_fixedpoint = vread_gain_float * 100;
+    EEPROM.write(VREAD_GAIN_B0_ADDRESS, (uint8_t)(vread_gain_fixedpoint & 0xFF));
+    EEPROM.write(VREAD_GAIN_B1_ADDRESS, (uint8_t)((vread_gain_fixedpoint >> 8) & 0xFF));
+    EEPROM.write(VREAD_GAIN_B2_ADDRESS, (uint8_t)((vread_gain_fixedpoint >> 16) & 0xFF));
+    EEPROM.write(VREAD_GAIN_B3_ADDRESS, (uint8_t)((vread_gain_fixedpoint >> 24) & 0xFF));
+  }
+  else 
+  {
+    int32_t x= (int32_t)((EEPROM.read(VREAD_GAIN_B3_ADDRESS) << 24) | (EEPROM.read(VREAD_GAIN_B2_ADDRESS) << 16) | (EEPROM.read(VREAD_GAIN_B1_ADDRESS) << 8) | EEPROM.read(VREAD_GAIN_B0_ADDRESS));
+    vread_gain_float =(float)x/100;
+  }
+
+  if(EEPROM.read(VREAD_OFFSET_B0_ADDRESS) == 255 && EEPROM.read(VREAD_OFFSET_B1_ADDRESS) == 255 && EEPROM.read(VREAD_OFFSET_B2_ADDRESS) == 255 && EEPROM.read(VREAD_OFFSET_B3_ADDRESS) == 255)
+  {
+    vread_offset_float = 0;
+    vread_offset_fixedpoint = vread_offset_float * 100;
+    EEPROM.write(VREAD_OFFSET_B0_ADDRESS, (uint8_t)(vread_offset_fixedpoint & 0xFF));
+    EEPROM.write(VREAD_OFFSET_B1_ADDRESS, (uint8_t)((vread_offset_fixedpoint >> 8) & 0xFF));
+    EEPROM.write(VREAD_OFFSET_B2_ADDRESS, (uint8_t)((vread_offset_fixedpoint >> 16) & 0xFF));
+    EEPROM.write(VREAD_OFFSET_B3_ADDRESS, (uint8_t)((vread_offset_fixedpoint >> 24) & 0xFF));
+  }
+  else 
+  {
+    int32_t y= ((EEPROM.read(VREAD_OFFSET_B3_ADDRESS) << 24) | (EEPROM.read(VREAD_OFFSET_B2_ADDRESS) << 16) | (EEPROM.read(VREAD_OFFSET_B1_ADDRESS) << 8) | EEPROM.read(VREAD_OFFSET_B0_ADDRESS));
+    vread_offset_float =(float)y/100;
+  }
 }
 
 void Do_Serial()
@@ -222,7 +254,7 @@ void Do_Serial()
     {
      VSET=input.substring(input.indexOf(',')+1);
      vset=VSET.toFloat();
-     Serial.println(vset);
+     //Serial.println(vset);
     }
 
     else if(command == "vset_gain")
@@ -230,10 +262,10 @@ void Do_Serial()
      VSET_GAIN=input.substring(input.indexOf(',')+1);
      vset_gain_float=VSET_GAIN.toFloat();
      vset_gain_fixedpoint = vset_gain_float * 100;
-     EEPROM.write(VSET_GAIN_B0_ADDRESS, (unsigned char)(vset_gain_fixedpoint & 0xFF));
-     EEPROM.write(VSET_GAIN_B1_ADDRESS, (unsigned char)((vset_gain_fixedpoint >> 8) & 0xFF));
-     EEPROM.write(VSET_GAIN_B2_ADDRESS, (unsigned char)((vset_gain_fixedpoint >> 16) & 0xFF));
-     EEPROM.write(VSET_GAIN_B3_ADDRESS, (unsigned char)((vset_gain_fixedpoint >> 24) & 0xFF));
+     EEPROM.write(VSET_GAIN_B0_ADDRESS, (uint8_t)(vset_gain_fixedpoint & 0xFF));
+     EEPROM.write(VSET_GAIN_B1_ADDRESS, (uint8_t)((vset_gain_fixedpoint >> 8) & 0xFF));
+     EEPROM.write(VSET_GAIN_B2_ADDRESS, (uint8_t)((vset_gain_fixedpoint >> 16) & 0xFF));
+     EEPROM.write(VSET_GAIN_B3_ADDRESS, (uint8_t)((vset_gain_fixedpoint >> 24) & 0xFF));
     }
 
     else if(command == "vset_offset")
@@ -241,10 +273,10 @@ void Do_Serial()
      VSET_OFFSET=input.substring(input.indexOf(',')+1);
      vset_offset_float=VSET_OFFSET.toFloat();
      vset_offset_fixedpoint = vset_offset_float * 100;
-     EEPROM.write(VSET_OFFSET_B0_ADDRESS, (unsigned char)(vset_offset_fixedpoint & 0xFF));
-     EEPROM.write(VSET_OFFSET_B1_ADDRESS, (unsigned char)((vset_offset_fixedpoint >> 8) & 0xFF));
-     EEPROM.write(VSET_OFFSET_B2_ADDRESS, (unsigned char)((vset_offset_fixedpoint >> 16) & 0xFF));
-     EEPROM.write(VSET_OFFSET_B3_ADDRESS, (unsigned char)((vset_offset_fixedpoint >> 24) & 0xFF));
+     EEPROM.write(VSET_OFFSET_B0_ADDRESS, (uint8_t)(vset_offset_fixedpoint & 0xFF));
+     EEPROM.write(VSET_OFFSET_B1_ADDRESS, (uint8_t)((vset_offset_fixedpoint >> 8) & 0xFF));
+     EEPROM.write(VSET_OFFSET_B2_ADDRESS, (uint8_t)((vset_offset_fixedpoint >> 16) & 0xFF));
+     EEPROM.write(VSET_OFFSET_B3_ADDRESS, (uint8_t)((vset_offset_fixedpoint >> 24) & 0xFF));
     }
 
     else if(command == "mode")
@@ -259,8 +291,8 @@ void Do_Serial()
      VSET_MAX=input.substring(input.indexOf(',')+1);
      vset_max=VSET_MAX.toFloat();
      vset_max_fixedpoint = vset_max * 100;
-     EEPROM.write(VSET_MAX_LSB_ADDRESS, (unsigned char)(vset_max_fixedpoint & 0xFF));
-     EEPROM.write(VSET_MAX_MSB_ADDRESS, (unsigned char)((vset_max_fixedpoint >> 8) & 0xFF));
+     EEPROM.write(VSET_MAX_LSB_ADDRESS, (uint8_t)(vset_max_fixedpoint & 0xFF));
+     EEPROM.write(VSET_MAX_MSB_ADDRESS, (uint8_t)((vset_max_fixedpoint >> 8) & 0xFF));
     }
 
     else if(command == "vset_min")
@@ -268,8 +300,8 @@ void Do_Serial()
      VSET_MIN=input.substring(input.indexOf(',')+1);
      vset_min=VSET_MIN.toFloat();
      vset_min_fixedpoint = vset_min * 100;
-     EEPROM.write(VSET_MIN_LSB_ADDRESS, (unsigned char)(vset_min_fixedpoint & 0xFF));
-     EEPROM.write(VSET_MIN_MSB_ADDRESS, (unsigned char)((vset_min_fixedpoint >> 8) & 0xFF));
+     EEPROM.write(VSET_MIN_LSB_ADDRESS, (uint8_t)(vset_min_fixedpoint & 0xFF));
+     EEPROM.write(VSET_MIN_MSB_ADDRESS, (uint8_t)((vset_min_fixedpoint >> 8) & 0xFF));
     }
 
     else if(command == "min_pwm")
@@ -285,6 +317,28 @@ void Do_Serial()
       max_pwm_int=MAX_PWM.toInt();    
       EEPROM.write(MAX_PWM_ADDRESS,max_pwm_int);
     }
+
+    else if(command == "vread_gain")
+    {
+     VREAD_GAIN=input.substring(input.indexOf(',')+1);
+     vread_gain_float=VREAD_GAIN.toFloat();
+     vread_gain_fixedpoint = vread_gain_float * 100;
+     EEPROM.write(VREAD_GAIN_B0_ADDRESS, (uint8_t)(vread_gain_fixedpoint & 0xFF));
+     EEPROM.write(VREAD_GAIN_B1_ADDRESS, (uint8_t)((vread_gain_fixedpoint >> 8) & 0xFF));
+     EEPROM.write(VREAD_GAIN_B2_ADDRESS, (uint8_t)((vread_gain_fixedpoint >> 16) & 0xFF));
+     EEPROM.write(VREAD_GAIN_B3_ADDRESS, (uint8_t)((vread_gain_fixedpoint >> 24) & 0xFF));
+    }
+
+    else if(command == "vread_offset")
+    {
+     VREAD_OFFSET=input.substring(input.indexOf(',')+1);
+     vread_offset_float=VREAD_OFFSET.toFloat();
+     vread_offset_fixedpoint = vread_offset_float * 100;
+     EEPROM.write(VREAD_OFFSET_B0_ADDRESS, (uint8_t)(vread_offset_fixedpoint & 0xFF));
+     EEPROM.write(VREAD_OFFSET_B1_ADDRESS, (uint8_t)((vread_offset_fixedpoint >> 8) & 0xFF));
+     EEPROM.write(VREAD_OFFSET_B2_ADDRESS, (uint8_t)((vread_offset_fixedpoint >> 16) & 0xFF));
+     EEPROM.write(VREAD_OFFSET_B3_ADDRESS, (uint8_t)((vread_offset_fixedpoint >> 24) & 0xFF));
+    }
     if(mode == 1)
     {
       if(command == "pwm")
@@ -299,20 +353,15 @@ void Do_Serial()
 void Readbacks()
 {
   float adc_resolution = (float)VREAD_MAX/ADC_MAX_VAL;
-  //Serial.print(adc_resolution);
   uint16_t raw_val= ADC_AVG(VREAD_ANALOG_CHANNEL);
   float scaled_val = (float)raw_val * adc_resolution;
   vread = scaled_val * vread_gain_float + vread_offset_float;
-  //Serial.print(raw_val);
-  //Serial.print(" ");
-  //Serial.print(vread);
-  //Serial.println();
 }
 
 uint16_t ADC_AVG(uint8_t channel)
 {
   uint8_t i;
-  uint8_t num_of_samples = 40;
+  uint8_t num_of_samples = 60;
   uint16_t ADC_Samples[num_of_samples];
   uint16_t ADC_Average = 0;
   for(i=0 ; i<num_of_samples ; i++)
@@ -334,9 +383,9 @@ void print_values()
   Serial.print(vset_max);
   Serial.print("  Vset_min: ");
   Serial.print(vset_min);
-  Serial.print("  Gain: ");
+  Serial.print("  Vset_gain: ");
   Serial.print(vset_gain_float);
-  Serial.print("  offset: ");
+  Serial.print("  Vset_offset: ");
   Serial.print(vset_offset_float);
   Serial.print("  Min_pwm: ");
   Serial.print(min_pwm_int);
@@ -344,6 +393,10 @@ void print_values()
   Serial.print(max_pwm_int);
   Serial.print("  pwm: ");
   Serial.print(pwm_int);
+  Serial.print("  Vread_gain: ");
+  Serial.print(vread_gain_float);
+  Serial.print("  Vread_offset: ");
+  Serial.print(vread_offset_float);
   Serial.print("  Vread: ");
   Serial.print(vread);
   Serial.println();
