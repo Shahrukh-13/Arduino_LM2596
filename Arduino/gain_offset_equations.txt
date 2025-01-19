@@ -1,0 +1,8 @@
+Actual equations for gain and offset if PWM=0 gave minimum outpout and PWM=255 gace max output:
+G = (y2 - y1)/(x2 - x1)
+O = G(-x1) + y1
+
+In this project PWM=0 gives us the max output and PWM=255 gives us the minimum output so we will use the following ones:
+G = (x2 - x1)/(y2 - y1)
+O = -1*(G(-x1) + y1)
+
